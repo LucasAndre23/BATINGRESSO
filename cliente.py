@@ -1,7 +1,10 @@
 import socket
 
 
-
+ERROS_AOT = {
+    'ERRO 444': 'O comando que você digitou não é reconhecido.',
+    # mais alguns erros aqui tbm
+}
 
 def iniciar_cliente():
     # Cria um socket para o cliente
@@ -17,7 +20,7 @@ def iniciar_cliente():
     print("=================Comandos disponíveis:==========================\n")
     print("•assentos_disponiveis: Mostra os assentos disponíveis.\n")
     print("•reservar_assentos [assento]: Reserva um assento.\n")
-    print("•comprar_ingressos [assento]: Compra um ingresso.\n")
+    # print("•comprar_ingressos [assento]: Compra um ingresso.\n")
     print("•cancelar_reserva [assento]: Cancela a reserva de um assento.\n")
     print("•Digite 'bye' para sair.\n")
     
@@ -31,6 +34,10 @@ def iniciar_cliente():
             break
         # Recebe a resposta do servidor
         resposta = cliente.recv(2048).decode()
+         # Verifica se a resposta é um código de erro
+        if resposta in ERROS_AOT:
+            # Traduz o código de erro para uma mensagem de erro
+            resposta = ERROS_AOT[resposta]
         print(resposta)
     # Fecha o socket do cliente quando o usuário digita 'bye'
     cliente.close()
