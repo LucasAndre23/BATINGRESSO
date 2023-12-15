@@ -20,31 +20,43 @@ def tratar_cliente(socket_cliente):
         bloqueio_assentos.acquire()
         
         # Se o cliente solicitar os assentos disponíveis, envia a lista de assentos disponíveis.
-        if request == 'assentos_disponiveis' :
+        if request == 'assentos_disponiveis':
             if assentos:
                 resposta = ','.join(assentos)
             else :
                 resposta ='Desculpe, todos os assentos foram vendidos/reservados.'
         # Se o cliente solicitar para reservar um assento, verifica se o assento está disponível e, em caso afirmativo, reserva o assento.
         elif request.startswith('reservar_assentos'):
-            assento = request.split(' ')[1]
-            if assento in assentos:
-                assentos.remove(assento)
-                resposta = "Assento " + assento + " reservado com sucesso!"
+            partes = request.split(' ')
+            if len(partes) < 2:
+                resposta = "Por favor, forneça o número do assento que deseja reservar."
             else:
-                resposta = "Desculpe, o assento " + assento + " não está disponível."
+                assento = partes[1]
+                if assento in assentos:
+                    assentos.remove(assento)
+                    resposta = "Assento " + assento + " reservado com sucesso!"
+                else:
+                    resposta = "Desculpe, o assento " + assento + " não está disponível."
         # Se o cliente solicitar para comprar um ingresso, verifica se o assento está disponível e, em caso afirmativo, vende o ingresso.
         elif request.startswith('comprar_ingressos'):
-            assento = request.split(' ')[1]
-            if assento not in assentos:
-                resposta = "Ingresso para o assento " + assento + " comprado com sucesso!"
+            partes = request.split(' ')
+            if len(partes) < 2:
+                resposta = "Por favor, forneça o número do assento que deseja comprar."
             else:
-                resposta = "Desculpe, o assento " + assento + " ainda está disponível, você precisa reservá-lo primeiro."
+                assento = partes[1]
+                if assento not in assentos:
+                    resposta = "Ingresso para o assento " + assento + " comprado com sucesso!"
+                else:
+                    resposta = "Desculpe, o assento " + assento + " ainda está disponível, você precisa reservá-lo primeiro."
         # Se o cliente solicitar para cancelar uma reserva, cancela a reserva.
         elif request.startswith('cancelar_reserva'):
-            assento = request.split(' ')[1]
-            assentos.append(assento)
-            resposta = "Reserva para o assento " + assento + " cancelada com sucesso!"
+            partes = request.split(' ')
+            if len(partes) < 2:
+                resposta = "Por favor, forneça o número do assento cuja reserva deseja cancelar."
+            else:
+                assento = partes[1]
+                assentos.append(assento)
+                resposta = "Reserva para o assento " + assento + " cancelada com sucesso!"
         else:
             resposta = 'Comando não reconhecido.'
         
@@ -61,6 +73,7 @@ def tratar_cliente(socket_cliente):
     
     # Fecha o socket do cliente quando o cliente envia 'bye'
     socket_cliente.close()
+
 
 # Esta função inicia o servidor.
 def iniciar_servidor():
