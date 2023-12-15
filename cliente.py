@@ -27,6 +27,7 @@ def iniciar_cliente():
         # Envia o comando ao servidor
         cliente.send(bytes(comando,'UTF-8'))
         if comando == 'bye':
+            print ('Obrigado pela preferência, até a próxima. ⊂(◉‿◉)つ')
             break
         # Recebe a resposta do servidor
         resposta = cliente.recv(2048).decode()
