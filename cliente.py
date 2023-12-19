@@ -1,50 +1,63 @@
+# Importa o módulo de socket
 import socket
 
-
+# Dicionário para mapear os códigos de erro para as mensagens de erro
 ERROS_AOT = {
     'ERRO 444': 'O comando que você digitou não é reconhecido.',
-    # mais alguns erros aqui tbm
 }
 
+
+# Função para iniciar o cliente
 def iniciar_cliente():
+    # Solicita o endereço IP e a porta do servidor ao usuário
+    LOCALHOST = input("Digite o endereço IP do servidor: ")
+    PORTA = int(input("Digite a porta do servidor: "))
+
     # Cria um socket para o cliente
     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     # Conecta o socket a um endereço e porta
     cliente.connect((LOCALHOST, PORTA))
-    print ('''  ____   _____  __  __  __     __ ___  _   _  ____    ___       _      ___    ____      _     _____  ___  _   _   ____  ____   _____  ____   ____    ___  
-| __ ) | ____||  \/  | \ \   / /|_ _|| \ | ||  _ \  / _ \     / \    / _ \  | __ )    / \   |_   _||_ _|| \ | | / ___||  _ \ | ____|/ ___| / ___|  / _ \ 
-|  _ \ |  _|  | |\/| |  \ \ / /  | | |  \| || | | || | | |   / _ \  | | | | |  _ \   / _ \    | |   | | |  \| || |  _ | |_) ||  _|  \___ \ \___ \ | | | |
-| |_) || |___ | |  | |   \ V /   | | | |\  || |_| || |_| |  / ___ \ | |_| | | |_) | / ___ \   | |   | | | |\  || |_| ||  _ < | |___  ___) | ___) || |_| |
+
+    # Imprime uma mensagem de boas-vindas e a lista de comandos disponíveis
+    print('''  ____   _____  __  __  __     __ ___  _   _  ____    ___       _      ___    ____      _     _____  ___  _   _   ____  ____   _____  ____   ____    ___  
+| __ ) | ___||  \/  | \ \   / /| || \ | ||  _ \  / _ \     / \    / _ \  | __ )    / \   |   || _|| \ | | / ___||  _ \ | ____|/ ___| / ___|  / _ \ 
+|  _ \ |  |  | |\/| |  \ \ / /  | | |  \| || | | || | | |   / _ \  | | | | |  _ \   / _ \    | |   | | |  \| || |  _ | |_) ||  _|  \__ \ \___ \ | | | |
+| |) || |__ | |  | |   \ V /   | | | |\  || || || |_| |  / ___ \ | |_| | | |_) | / ___ \   | |   | | | |\  || |_| ||  _ < | |__  ___) | ___) || |_| |
 |____/ |_____||_|  |_|    \_/   |___||_| \_||____/  \___/  /_/   \_\ \___/  |____/ /_/   \_\  |_|  |___||_| \_| \____||_| \_\|_____||____/ |____/  \___/ 
 ''')
     print("=================Comandos disponíveis:==========================\n")
     print("•assentos_disponiveis: Mostra os assentos disponíveis.\n")
     print("•reservar_assentos [assento]: Reserva um assento.\n")
-    # print("•comprar_ingressos [assento]: Compra um ingresso.\n")
     print("•cancelar_reserva [assento]: Cancela a reserva de um assento.\n")
     print("•Digite 'bye' para sair.\n")
-    
+
     while True:
         # Solicita um comando ao usuário
         comando = input("Digite o comando que você deseja usar: ")
+
         # Envia o comando ao servidor
-        cliente.send(bytes(comando,'UTF-8'))
+        cliente.send(bytes(comando, 'UTF-8'))
+
+        # Se o usuário digitar 'bye', imprime uma mensagem de despedida e encerra a conexão
         if comando == 'bye':
-            print ('Obrigado pela preferência, até a próxima. ⊂(◉‿◉)つ')
+            print('Obrigado pela preferência, até a próxima. ⊂(◉‿◉)つ')
             break
+
         # Recebe a resposta do servidor
         resposta = cliente.recv(2048).decode()
-         # Verifica se a resposta é um código de erro
+
+        # Verifica se a resposta é um código de erro
         if resposta in ERROS_AOT:
             # Traduz o código de erro para uma mensagem de erro
             resposta = ERROS_AOT[resposta]
+
+        # Imprime a resposta
         print(resposta)
+
     # Fecha o socket do cliente quando o usuário digita 'bye'
     cliente.close()
 
-LOCALHOST = "192.168.56.1"
-PORTA = 4000
 
 # Inicia o cliente
 iniciar_cliente()
-
