@@ -9,16 +9,11 @@ PROTOCOLO_AOT = {
     'cancelar_reserva': 'CANC'
 }
 
-# Dicionário para mapear os códigos de erro para as mensagens de erro
-ERROS_AOT = {
-    'ERRO 444': 'Comando não reconhecido',
-}
-
 # Lista de assentos disponíveis
 assentos = ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'c1', 'c2', 'c3']
 
-# Cria um bloqueio para a lista de assentos. Isso é usado para prevenir condições de corrida.
-bloqueio_assentos = threading.Lock()
+# Cria um bloqueio para a lista de assentos, usado para prevenir condições de corrida.
+bloqueio_assentos = threading.Semaphore(1)
 
 
 # Função para mostrar os assentos disponíveis de uma maneira amigável ao usuário
@@ -38,42 +33,69 @@ def mostrar_assentos_disponiveis():
 
 
 # Função para tratar a mensagem do cliente
-def trata_msg(request):
+ERROS_AOT = {
+    'ERRO-444': 'O comando que você digitou não é reconhecido.',
+    'ERRO-855': 'Assento indisponível.',
+    'ERRO-777': 'Por favor, forneça o número do assento que deseja reservar.',
+    'ERRO-202': "Por favor, forneça o número do assento cuja reserva deseja cancelar.",
+    'ERRO-303': "Você não pode cancelar uma reserva que não fez."
+}
+
+# Dicionário para mapear cada assento reservado para o cliente que o reservou
+reservas = {}
+
+def trata_msg(request, cliente):
     # Usa o bloqueio para garantir que apenas uma thread acesse a lista de assentos de cada vez
     bloqueio_assentos.acquire()
 
     # Traduz o comando do usuário para o comando AOT correspondente
-    comando_aot = PROTOCOLO_AOT.get(request.split(' ')[0], 'ERRO 444')
+    comando_aot = PROTOCOLO_AOT.get(request.split(' ')[0], 'ERRO-444')
 
     # Se o comando AOT não for reconhecido, retorna uma mensagem de erro
-    if comando_aot == 'ERRO 444':
-        resposta = 'ERRO 444'
+    if comando_aot == 'ERRO-444':
+        print('ERRO-444\n')
+        resposta = ERROS_AOT['ERRO-444']
     else:
         # Processa o comando do usuário de acordo com o comando AOT correspondente
         if comando_aot == 'ASSD':
             # Processa o comando 'assentos_disponiveis'
+            print('Comando ASSD recebido\n')
             resposta = mostrar_assentos_disponiveis()
         elif comando_aot == 'RESV':
             # Processa o comando 'reservar_assentos'
+            print('Comando RESV recebido\n')
             partes = request.split(' ')
             if len(partes) < 2:
-                resposta = "Por favor, forneça o número do assento que deseja reservar."
+                print ('ERRO-777\n')
+                resposta = ERROS_AOT['ERRO-777']
             else:
                 assento = partes[1]
                 if assento in assentos:
                     assentos.remove(assento)
+                    # Adiciona a reserva ao dicionário de reservas
+                    reservas[assento] = cliente
                     resposta = "Assento " + assento + " reservado com sucesso!"
                 else:
-                    resposta = "Desculpe, o assento " + assento + " não está disponível."
+                    print('ERRO-855\n')
+                    resposta = ERROS_AOT['ERRO-855']
         elif comando_aot == 'CANC':
             # Processa o comando 'cancelar_reserva'
+            print('Comando CANC recebido\n')
             partes = request.split(' ')
             if len(partes) < 2:
-                resposta = "Por favor, forneça o número do assento cuja reserva deseja cancelar."
+                print('ERRO-202\n')
+                resposta = ERROS_AOT['ERRO-202']
             else:
                 assento = partes[1]
-                assentos.append(assento)
-                resposta = "Reserva para o assento " + assento + " cancelada com sucesso!"
+                # Verifica se o cliente é quem reservou o assento
+                if reservas.get(assento) == cliente:
+                    assentos.append(assento)
+                    # Remove a reserva do dicionário de reservas
+                    del reservas[assento]
+                    resposta = "Reserva para o assento " + assento + " cancelada com sucesso!"
+                else:
+                    print('ERRO-303\n')
+                    resposta = ERROS_AOT['ERRO-303']
 
     # Libera o bloqueio para que outras threads possam acessar a lista de assentos.
     bloqueio_assentos.release()
@@ -81,28 +103,29 @@ def trata_msg(request):
     return resposta
 
 
+
 # Função para tratar o cliente
 def tratar_cliente(socket_cliente, endereco):
-    print('Cliente conectado:', endereco)
+    print('Cliente conectado:', endereco,'\n')
     while True:
         # Recebe a solicitação do cliente
         request = socket_cliente.recv(2048).decode()
-        print(f"Recebido de {endereco}: {request}")
+        print(f"Recebido de {endereco}: {request}\n")
 
         # Se o cliente enviar 'bye', termina a conexão com o cliente.
         if request == 'bye':
-            print(f'Cliente {endereco} desconectado.')
+            print(f'Cliente {endereco} desconectado.\n')
             break
 
         # Trata a mensagem do cliente
-        resposta = trata_msg(request)
+        resposta = trata_msg(request, endereco)
 
-        print(f"Enviando para {endereco}: {resposta}")
+        print(f"Enviando para {endereco}: {resposta}\n")
         # Envia a resposta ao cliente
         socket_cliente.send(bytes(resposta, 'UTF-8'))
 
         if request == 'bye':
-            print(f'Cliente {endereco} desconectado.')
+            print(f'Cliente {endereco} desconectado.\n')
             break
 
     # Fecha o socket do cliente quando o cliente envia 'bye'
@@ -113,7 +136,7 @@ def tratar_cliente(socket_cliente, endereco):
 def iniciar_servidor():
     # Solicita o endereço IP e a porta do servidor ao usuário
     LOCALHOST = input("Digite o endereço IP do servidor: ")
-    PORTA = int(input("Digite a porta do servidor: "))
+    PORTA = int(input("\nDigite a porta do servidor: "))
 
     # Cria um socket para o servidor
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -122,7 +145,7 @@ def iniciar_servidor():
     servidor.bind((LOCALHOST, PORTA))
     # Começa a ouvir conexões
     servidor.listen(1)
-    print("Servidor iniciado")
+    print("Servidor iniciado\n")
 
     try:
         while True:
