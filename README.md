@@ -2,9 +2,11 @@
 Sistema de Reserva de Assentos
 
 Autores: Mateus Polari, Thiago Alexandre, Lucas André
+
 Email: mateus.castro@academico.ifpb.edu.br
 
 Disciplinas: Protocolos e Interconexão de Redes de Computadores e Sistemas Operacionais
+
 Docentes: Leonidas Francisco de Lima Junior ,Gustavo Wagner Diniz Mendes
 
 Descrição Problema:  Este sistema permite que os usuários visualizem, reservem e cancelem reservas de assentos. Ele é composto por um servidor que gerencia as reservas de assentos e um cliente que permite aos usuários interagir com o sistema.
