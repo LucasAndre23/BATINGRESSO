@@ -7,7 +7,7 @@ Socket: O sistema usa sockets para permitir a comunicação entre o servidor e o
 
 Threads: O sistema usa threads para permitir que o servidor trate múltiplos clientes simultaneamente. Quando um cliente se conecta, o servidor cria uma nova thread para tratar a conexão.
 
-Semáforos (Locks): O sistema usa um bloqueio para prevenir condições de corrida ao acessar a lista de assentos. Quando uma thread está modificando a lista de assentos, outras threads são impedidas de acessá-la.
+Semáforos: O sistema usa um bloqueio para prevenir condições de corrida ao acessar a lista de assentos. Quando uma thread está modificando a lista de assentos, outras threads são impedidas de acessá-la.
 
 Comandos
 O sistema suporta os seguintes comandos:
