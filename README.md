@@ -3,7 +3,7 @@ Sistema de Reserva de Assentos
 
 Autores: Mateus Polari, Thiago Alexandre, Lucas André
 
-Emails: mateus.castro@academico.ifpb.edu.br
+Emails: mateus.castro@academico.ifpb.edu.br , thiago.agustinho@academico.ifpb.edu.br , Andre.junior@academico.ifpb.edu.br
 
 Disciplinas: Protocolos e Interconexão de Redes de Computadores e Sistemas Operacionais
 
