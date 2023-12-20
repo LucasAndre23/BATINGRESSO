@@ -1,17 +1,13 @@
 # Importa o módulo de socket
 import socket
 
-# Dicionário para mapear os códigos de erro para as mensagens de erro
-ERROS_AOT = {
-    'ERRO 444': 'O comando que você digitou não é reconhecido.',
-}
 
 
 # Função para iniciar o cliente
 def iniciar_cliente():
     # Solicita o endereço IP e a porta do servidor ao usuário
     LOCALHOST = input("Digite o endereço IP do servidor: ")
-    PORTA = int(input("Digite a porta do servidor: "))
+    PORTA = int(input("\nDigite a porta do servidor: "))
 
     # Cria um socket para o cliente
     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,23 +30,18 @@ def iniciar_cliente():
 
     while True:
         # Solicita um comando ao usuário
-        comando = input("Digite o comando que você deseja usar: ")
+        comando = input("\nDigite o comando que você deseja usar: ")
 
         # Envia o comando ao servidor
         cliente.send(bytes(comando, 'UTF-8'))
 
         # Se o usuário digitar 'bye', imprime uma mensagem de despedida e encerra a conexão
         if comando == 'bye':
-            print('Obrigado pela preferência, até a próxima. ⊂(◉‿◉)つ')
+            print('\nObrigado pela preferência, até a próxima. ⊂(◉‿◉)つ')
             break
 
         # Recebe a resposta do servidor
         resposta = cliente.recv(2048).decode()
-
-        # Verifica se a resposta é um código de erro
-        if resposta in ERROS_AOT:
-            # Traduz o código de erro para uma mensagem de erro
-            resposta = ERROS_AOT[resposta]
 
         # Imprime a resposta
         print(resposta)
