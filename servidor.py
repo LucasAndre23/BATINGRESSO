@@ -15,6 +15,17 @@ assentos = ['a1', 'a2', 'a3', 'b1', 'b2', 'b3', 'c1', 'c2', 'c3']
 # Cria um bloqueio para a lista de assentos, usado para prevenir condições de corrida.
 bloqueio_assentos = threading.Semaphore(1)
 
+ERROS_AOT = {
+    'ERRO-444': 'O comando que você digitou não é reconhecido.',
+    'ERRO-855': 'Assento indisponível.',
+    'ERRO-777': 'Por favor, forneça o número do assento que deseja reservar.',
+    'ERRO-202': "Por favor, forneça o número do assento cuja reserva deseja cancelar.",
+    'ERRO-303': "Você não pode cancelar uma reserva que não fez."
+}
+
+
+# Dicionário para mapear cada assento reservado para o cliente que o reservou
+reservas = {}
 
 # Função para mostrar os assentos disponíveis de uma maneira amigável ao usuário
 def mostrar_assentos_disponiveis():
@@ -30,19 +41,6 @@ def mostrar_assentos_disponiveis():
 
     response += "\n  -------------------------\n"
     return response
-
-
-# Função para tratar a mensagem do cliente
-ERROS_AOT = {
-    'ERRO-444': 'O comando que você digitou não é reconhecido.',
-    'ERRO-855': 'Assento indisponível.',
-    'ERRO-777': 'Por favor, forneça o número do assento que deseja reservar.',
-    'ERRO-202': "Por favor, forneça o número do assento cuja reserva deseja cancelar.",
-    'ERRO-303': "Você não pode cancelar uma reserva que não fez."
-}
-
-# Dicionário para mapear cada assento reservado para o cliente que o reservou
-reservas = {}
 
 def trata_msg(request, cliente):
     # Usa o bloqueio para garantir que apenas uma thread acesse a lista de assentos de cada vez
